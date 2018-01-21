@@ -1,0 +1,32 @@
+# First lets define our proxies
+proxies:
+  main: "masterproxy.yourcompany.it:8080"
+  hidden: "hiddenproxy.yourcompany.it"
+
+# Then lets define some profiles
+profiles:
+  atCompany:
+    # A profile should have a default proxy if none of its rules match
+    default: main
+    # Rules are ordered 
+    rules:
+      - host_wildcard: "gist.github.com"
+        proxy: hidden
+      - host_wildcard: "*.yourcompany.it"
+        # direct is a reserved word that means: "forward the request directly to the targeted site without using a proxy"
+        proxy: direct
+      - host_wildcard: "*.google.*"
+        proxy: hidden
+      - host_wildcard: "*.reedit.*"
+        proxy: hidden
+  homeworking:
+    default: direct
+    rules:
+      - host_wildcard: "someplace.yourcompany.it"
+        proxy: hidden
+
+# Finally lets set the current profile
+server:
+  profile: atCompany
+  # setup the listening address
+  address: "127.0.0.1:8080"
