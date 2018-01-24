@@ -1,4 +1,6 @@
-# Sweetcher: For those who know the hell of enterprise proxies
+# Sweetcher: For those who know the hell of enterprise proxies 
+
+[![Build Status](https://travis-ci.org/loicalbertin/sweetcher.svg?branch=master)](https://travis-ci.org/loicalbertin/sweetcher) [![GoDoc](https://godoc.org/github.com/loicalbertin/sweetcher?status.svg)](https://godoc.org/github.com/loicalbertin/sweetcher)
 
 Sweetcher is a tool inspired from web browsers' proxy switchers plugins like SwitchyOmega or FoxyProxy but witch operate at OS level rather than only for your browser.
 
