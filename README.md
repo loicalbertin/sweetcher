@@ -1,6 +1,7 @@
 # Sweetcher: For those who know the hell of enterprise proxies 
 
 [![Build Status](https://travis-ci.org/loicalbertin/sweetcher.svg?branch=master)](https://travis-ci.org/loicalbertin/sweetcher) [![GoDoc](https://godoc.org/github.com/loicalbertin/sweetcher?status.svg)](https://godoc.org/github.com/loicalbertin/sweetcher)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Floicalbertin%2Fsweetcher.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Floicalbertin%2Fsweetcher?ref=badge_shield)
 
 Sweetcher is a tool inspired from web browsers' proxy switchers plugins like SwitchyOmega or FoxyProxy but witch operate at OS level rather than only for your browser.
 
@@ -68,3 +69,7 @@ original goproxy library. I also plan to add the ability to match on URL pattern
 - [ ] metering (errors, rate, ...)
 - [ ] proxies load balancing
 - [ ] Management API (?)
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Floicalbertin%2Fsweetcher.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Floicalbertin%2Fsweetcher?ref=badge_large)
