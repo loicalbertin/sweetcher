@@ -1,12 +1,15 @@
 package commands
 
 import (
+	"log"
 	"net/url"
 
-	"github.com/loicalbertin/sweetcher/proxy"
+	"github.com/fsnotify/fsnotify"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/loicalbertin/sweetcher/proxy"
 )
 
 func init() {
@@ -25,6 +28,22 @@ func init() {
 			}
 			server := &proxy.Server{Addr: conf.Server.Address}
 			server.SetupProfile(profile)
+
+			viper.WatchConfig()
+			viper.OnConfigChange(func(e fsnotify.Event) {
+				log.Printf("reloading config file %q, (%q)", e.Name, e.Op)
+				c := &Config{}
+				err := viper.Unmarshal(c)
+				if err != nil {
+					log.Printf("Failed to read config file %q: %v", e.Name, err)
+				}
+				profile, err := generateProfile(c)
+				if err != nil {
+					log.Printf("Failed to create profile from config file %q: %v", e.Name, err)
+				}
+				server.SetupProfile(profile)
+			})
+
 			return server.ListenAndServe()
 
 		},
@@ -57,14 +76,24 @@ func generateProfile(cfg *Config) (*proxy.Profile, error) {
 	}
 	// Defaults to direct proxy
 	profile := &proxy.Profile{}
-	for profileName, p := range cfg.Profiles {
-		if profileName == cfg.Server.Profile {
-			profile.Default = proxies[p.Default]
-			for _, r := range p.Rules {
-				profile.Rules = append(profile.Rules, proxy.Rule{Pattern: r.HostWildcard, Proxy: proxies[r.Proxy]})
-			}
-			break
+	if cfg.Server.Profile == "direct" {
+		return profile, nil
+	}
+	p, ok := cfg.Profiles[cfg.Server.Profile]
+	if !ok {
+		return nil, errors.Errorf("specified server profile %q not found", cfg.Server.Profile)
+	}
+	def, ok := proxies[p.Default]
+	if !ok && p.Default != "direct" {
+		return nil, errors.Errorf("specified default proxy %q not found for profile %q", p.Default, cfg.Server.Profile)
+	}
+	profile.Default = def
+	for _, r := range p.Rules {
+		rp, ok := proxies[r.Proxy]
+		if !ok && r.Proxy != "direct" {
+			return nil, errors.Errorf("specified proxy %q not found for rule %q in profile %q", r.Proxy, r.HostWildcard, cfg.Server.Profile)
 		}
+		profile.Rules = append(profile.Rules, proxy.Rule{Pattern: r.HostWildcard, Proxy: rp})
 	}
 	return profile, nil
 }
