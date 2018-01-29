@@ -2,8 +2,6 @@ language: go
 go:
 - 1.x
 
-sudo: false
-
 install:
 - go get github.com/mattn/goveralls
 script:
