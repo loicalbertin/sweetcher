@@ -63,7 +63,7 @@ original goproxy library. I also plan to add the ability to match on URL pattern
 ## Roadmap
 
 - [ ] Support https proxies in case of HTTPS CONNECT connections
-- [ ] Dynamic configuration reload
+- [x] Dynamic configuration reload
 - [ ] URL patterns
 - [ ] metering (errors, rate, ...)
 - [ ] proxies load balancing
