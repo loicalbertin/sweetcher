@@ -6,6 +6,7 @@ sudo: false
 
 install:
 - go get github.com/mattn/goveralls
+- go get github.com/mitchellh/gox
 script:
 - "$HOME/gopath/bin/goveralls -v -service=travis-ci"
 - ./dist.sh
