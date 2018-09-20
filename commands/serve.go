@@ -53,9 +53,9 @@ func init() {
 
 func initConfig() (*Config, error) {
 	viper.SetConfigName("sweetcher")        // name of config file (without extension)
-	viper.AddConfigPath("/etc/sweetcher/")  // path to look for the config file in
+	viper.AddConfigPath(".")                // path to look for the config file in
 	viper.AddConfigPath("$HOME/.sweetcher") // call multiple times to add many search paths
-	viper.AddConfigPath(".")                // optionally look for config in the working directory
+	viper.AddConfigPath("/etc/sweetcher/")  // optionally look for config in the working directory
 	err := viper.ReadInConfig()             // Find and read the config file
 	if err != nil {                         // Handle errors reading the config file
 		return nil, errors.Errorf("Fatal error config file: %s", err)
