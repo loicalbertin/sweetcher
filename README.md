@@ -1,6 +1,6 @@
 # Sweetcher: For those who know the hell of enterprise proxies
 
-[![Build Status](https://travis-ci.org/loicalbertin/sweetcher.svg?branch=master)](https://travis-ci.org/loicalbertin/sweetcher) [![Go Report Card](https://goreportcard.com/badge/github.com/loicalbertin/sweetcher)](https://goreportcard.com/report/github.com/loicalbertin/sweetcher) [![GoDoc](https://godoc.org/github.com/loicalbertin/sweetcher?status.svg)](https://godoc.org/github.com/loicalbertin/sweetcher) [![Coverage Status](https://coveralls.io/repos/github/loicalbertin/sweetcher/badge.svg?branch=master)](https://coveralls.io/github/loicalbertin/sweetcher?branch=master)
+[![Build Status](https://travis-ci.org/loicalbertin/sweetcher.svg?branch=master)](https://travis-ci.org/loicalbertin/sweetcher) [![Go Report Card](https://goreportcard.com/badge/github.com/loicalbertin/sweetcher)](https://goreportcard.com/report/github.com/loicalbertin/sweetcher) [![GoDoc](https://godoc.org/github.com/loicalbertin/sweetcher?status.svg)](https://godoc.org/github.com/loicalbertin/sweetcher) [![codecov](https://codecov.io/gh/loicalbertin/sweetcher/branch/master/graph/badge.svg)](https://codecov.io/gh/loicalbertin/sweetcher)
 
 Sweetcher is a tool inspired from web browsers' proxy switchers plugins like SwitchyOmega or FoxyProxy but witch operate at OS level rather than only for your browser.
 
