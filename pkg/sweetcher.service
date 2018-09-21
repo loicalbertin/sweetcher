@@ -1,0 +1,16 @@
+[Unit]
+Description=Sweetcher service
+Requires=network-online.target
+After=network.target
+
+[Service]
+User=nobody
+Group=nogroup
+Restart=on-failure
+ExecStart=/usr/local/bin/sweetcher serve
+ExecReload=/bin/kill -s HUP $MAINPID
+KillSignal=SIGINT
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target

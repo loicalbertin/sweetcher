@@ -1,7 +1,7 @@
-# Sweetcher: For those who know the hell of enterprise proxies 
+# Sweetcher: For those who know the hell of enterprise proxies
 
-[![Build Status](https://travis-ci.org/loicalbertin/sweetcher.svg?branch=master)](https://travis-ci.org/loicalbertin/sweetcher) [![GoDoc](https://godoc.org/github.com/loicalbertin/sweetcher?status.svg)](https://godoc.org/github.com/loicalbertin/sweetcher)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Floicalbertin%2Fsweetcher.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Floicalbertin%2Fsweetcher?ref=badge_shield)
+
+[![Build Status](https://travis-ci.org/loicalbertin/sweetcher.svg?branch=master)](https://travis-ci.org/loicalbertin/sweetcher) [![Go Report Card](https://goreportcard.com/badge/github.com/loicalbertin/sweetcher)](https://goreportcard.com/report/github.com/loicalbertin/sweetcher) [![GoDoc](https://godoc.org/github.com/loicalbertin/sweetcher?status.svg)](https://godoc.org/github.com/loicalbertin/sweetcher) [![codecov](https://codecov.io/gh/loicalbertin/sweetcher/branch/master/graph/badge.svg)](https://codecov.io/gh/loicalbertin/sweetcher) [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Floicalbertin%2Fsweetcher.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Floicalbertin%2Fsweetcher?ref=badge_shield)
 
 Sweetcher is a tool inspired from web browsers' proxy switchers plugins like SwitchyOmega or FoxyProxy but witch operate at OS level rather than only for your browser.
 
@@ -64,7 +64,7 @@ original goproxy library. I also plan to add the ability to match on URL pattern
 ## Roadmap
 
 - [ ] Support https proxies in case of HTTPS CONNECT connections
-- [ ] Dynamic configuration reload
+- [x] Dynamic configuration reload
 - [ ] URL patterns
 - [ ] metering (errors, rate, ...)
 - [ ] proxies load balancing
