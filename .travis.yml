@@ -1,15 +1,23 @@
 language: go
 go:
-- stable
+  - stable
 
 sudo: false
+env:
+  global:
+    - GO111MODULE=on
+    # codecov.io API KEY
+    - secure: "UDsw62f3AtEmEgIgM5mTqHKtaNBdtMewVQ4RPJOx1+VLCG5BqNGHXPOa+Y5a25mLKrBKopS6JI2V/SGER6R/cgIVv68S7dtPqwvVn1jo3EoBKdK2/TPuBZ2e1FB+EPerYipSOoWRud2iNjIACf0jA63laOyjir7urLcgp78kwyvM2AnbJmPrQPzkofFJSUy4Z//vwOnzJ9hi12WD4r7mzISYUtuu7YdLOqQtaz8Kl3RRPExUc+Gc6HcZymCmH/ia/eiWN6REkcbohm/HF+rKcGu2YD0xH424gPz+CQMEDnleswytrr78mfFefrBV1eqvw8yLU/dBoLRWT9AWcz0dsfgMT4ZuWCw1wkLZh3Wc/YZWbIHp4S5me9j/ey5fu5UAn+JfhuAi2JZOFOMLY58c78rfE4aujL6gGSjBQRsEvUKF/zYqQ8ZNuw7a9FYbJpXbSj+Hz/5BsgKxzdes/J5WiFtasi8/ZHo4a48C8FdqS90yMQSQKl+f3Q1jbzJGQ1LbGZLfwL/sfR0pTYxj7u36gcShNcChm+inySdihyn7mh+ugN32OU1gZeGw3939cT+nrsbqhCQGIOuq+8RxO5TBQnFCMzgzTu5R7eIU3qE0K5z8n8n4c9PiUWP8ol2vSbTGXhu/0kS5E9R6BFXYSl6EPauwO35o+nk/Ye9Vki6XuM8="
 
 install:
-- go get github.com/mattn/goveralls
-- go get github.com/mitchellh/gox
+  - go get github.com/mattn/goveralls
+  - go get github.com/mitchellh/gox
 script:
-- "$HOME/gopath/bin/goveralls -v -service=travis-ci"
-- ./dist.sh
+  - go test -race -coverprofile=coverage.txt -covermode=atomic ./... 
+  - ./dist.sh
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 
 deploy:
   provider: releases
