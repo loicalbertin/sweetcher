@@ -9,6 +9,9 @@ type Config struct {
 
 // Server represents a Sweetcher server configuration file
 type Server struct {
+	Logs struct {
+		Level string `json:"level,omitempty" mapstructure:"level"`
+	} `json:"logs,omitempty" mapstructure:"logs"`
 	Address string `json:"address,omitempty" mapstructure:"address"`
 	Profile string `json:"profile,omitempty" mapstructure:"profile"`
 }

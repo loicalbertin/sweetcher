@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"errors"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // A Rule allows to match an URL pattern to a proxy URL
@@ -31,12 +32,16 @@ type Profile struct {
 func (p *Profile) chooseProxy(req *http.Request) (*url.URL, error) {
 	for _, r := range p.Rules {
 		hostname := stripPort(req.URL)
-		log.Printf("check matching of %q against rule pattern %q", hostname, r.Pattern)
+		logger := log.WithFields(log.Fields{
+			"hostname": hostname,
+			"pattern":  r.Pattern,
+		})
+		logger.Debug("check matching hostname against rule pattern")
 		rePattern := strings.Replace(r.Pattern, ".", `\.`, -1)
 		rePattern = strings.Replace(rePattern, "*", ".*", -1)
 		rePattern = "^" + rePattern + "$"
 		if ok, err := regexp.MatchString(rePattern, hostname); err == nil && ok {
-			log.Printf("matched!")
+			logger.Debug("matched!")
 			return r.Proxy, nil
 		}
 	}

@@ -1,11 +1,11 @@
 package commands
 
 import (
-	"log"
 	"net/url"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -31,17 +31,26 @@ func init() {
 
 			viper.WatchConfig()
 			viper.OnConfigChange(func(e fsnotify.Event) {
-				log.Printf("reloading config file %q, (%q)", e.Name, e.Op)
+				logger := log.WithFields(log.Fields{
+					"file": e.Name,
+					// "operation": e.Op,
+				})
+				logger.Info("reloading config file")
 				c := &Config{}
 				err := viper.Unmarshal(c)
 				if err != nil {
-					log.Printf("Failed to read config file %q: %v", e.Name, err)
+					logger.WithField("error", err).Error("Failed to read config file")
+					return
 				}
+				logger = logger.WithField("profile", c.Server.Profile)
+				setupLogs(c)
 				profile, err := generateProfile(c)
 				if err != nil {
-					log.Printf("Failed to create profile from config file %q: %v", e.Name, err)
+					logger.WithField("error", err).Error("Failed to create profile from config file")
+					return
 				}
 				server.SetupProfile(profile)
+				logger.Info("Profile reloaded")
 			})
 
 			return server.ListenAndServe()
@@ -62,6 +71,7 @@ func initConfig() (*Config, error) {
 	}
 	conf := &Config{}
 	viper.Unmarshal(conf)
+	setupLogs(conf)
 	return conf, nil
 }
 
@@ -96,4 +106,19 @@ func generateProfile(cfg *Config) (*proxy.Profile, error) {
 		profile.Rules = append(profile.Rules, proxy.Rule{Pattern: r.HostWildcard, Proxy: rp})
 	}
 	return profile, nil
+}
+
+func setupLogs(c *Config) {
+	level := c.Server.Logs.Level
+	if level == "" {
+		level = "info"
+	}
+	l, err := log.ParseLevel(level)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Fatal("failed to parse config file log level")
+	}
+	log.SetLevel(l)
+	log.SetFormatter(&log.TextFormatter{})
 }
