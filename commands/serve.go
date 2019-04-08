@@ -12,6 +12,8 @@ import (
 	"github.com/loicalbertin/sweetcher/proxy"
 )
 
+var server *proxy.Server
+
 func init() {
 	serveCmd := &cobra.Command{
 		Use:   "serve",
@@ -26,38 +28,40 @@ func init() {
 			if err != nil {
 				return err
 			}
-			server := &proxy.Server{Addr: conf.Server.Address}
+			server = &proxy.Server{Addr: conf.Server.Address}
 			server.SetupProfile(profile)
 
 			viper.WatchConfig()
-			viper.OnConfigChange(func(e fsnotify.Event) {
-				logger := log.WithFields(log.Fields{
-					"file": e.Name,
-					// "operation": e.Op,
-				})
-				logger.Info("reloading config file")
-				c := &Config{}
-				err := viper.Unmarshal(c)
-				if err != nil {
-					logger.WithField("error", err).Error("Failed to read config file")
-					return
-				}
-				logger = logger.WithField("profile", c.Server.Profile)
-				setupLogs(c)
-				profile, err := generateProfile(c)
-				if err != nil {
-					logger.WithField("error", err).Error("Failed to create profile from config file")
-					return
-				}
-				server.SetupProfile(profile)
-				logger.Info("Profile reloaded")
-			})
+			viper.OnConfigChange(updateConfigOnChangeEvent)
 
 			return server.ListenAndServe()
 
 		},
 	}
 	RootCmd.AddCommand(serveCmd)
+}
+
+func updateConfigOnChangeEvent(e fsnotify.Event) {
+	logger := log.WithFields(log.Fields{
+		"file": e.Name,
+		// "operation": e.Op,
+	})
+	logger.Info("reloading config file")
+	c := &Config{}
+	err := viper.Unmarshal(c)
+	if err != nil {
+		logger.WithField("error", err).Error("Failed to read config file")
+		return
+	}
+	logger = logger.WithField("profile", c.Server.Profile)
+	setupLogs(c)
+	profile, err := generateProfile(c)
+	if err != nil {
+		logger.WithField("error", err).Error("Failed to create profile from config file")
+		return
+	}
+	server.SetupProfile(profile)
+	logger.Info("Profile reloaded")
 }
 
 func initConfig() (*Config, error) {
