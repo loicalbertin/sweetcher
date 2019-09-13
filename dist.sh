@@ -30,6 +30,7 @@ for PLATFORM in $(find ./build -mindepth 1 -maxdepth 1 -type d); do
 
     pushd $PLATFORM >/dev/null 2>&1
     zip ../sweetcher_${OSARCH}.zip ./*
+    tar czvf ../sweetcher_${OSARCH}.tgz ./*
     rm ./*
     popd >/dev/null 2>&1
 done
