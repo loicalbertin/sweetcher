@@ -12,7 +12,7 @@ env:
 install:
   - go get github.com/mitchellh/gox
 script:
-  - go test -race -coverprofile=coverage.txt -covermode=atomic ./... 
+  - go test -race -coverprofile=coverage.txt -covermode=atomic ./...
   - ./dist.sh
 
 after_success:
@@ -20,8 +20,7 @@ after_success:
 
 deploy:
   provider: releases
-  api_key:
-    secure: XklIhrs4P8dJ6YK5L//yLJHKh/wlQ5i83+jiCetOl+Be9OJe8x6DupTkYHFMmhLIEGJwrFMB7Tvgej4C90SqEuNPtlNhwErS0eNr5SQxqVukr24IythA+Qd9M5pGzbKmyK6b+pdaE6SmpJ/acctaSfeHPR9BhBPPMd2e2/MQHTGAMoa84SiJ4C2UEsddSasUdwhsNjhhLKVHuM3eiyqmiYjOxgTxfES6EWcj9b3iSc83s0/DL/jpZiJ2YI04xm0sJBBohjYwkGzQUDytvCxVYBRK9HtFcDhh5EkJUJOKCWbpmFOLkCVtdY+1/0BUc7Y6dpblx6eC6vpPe4CeWHBT+/rR2PfAFaRaNKUioEPaswEjjzLRroqGCV6rMf7rFe1jjo4PIgNgyloQj+eb7AFz7T2Y0dJ8PSiIGeWnBOtgMxrooBD2uIZAJ2Bc+EmwtZPHUNuRCPfy1xjwCVc7wzJx2RgXHtccbpFIGLTJPhkG8NBu7MSjqnVpB7JLe22VXRwq6iH8r7b4pREAVG2u9CEVtoZ/v/S0nh4tXVqLQK+6xE7iIe0kN4HE/WJvZT+y8k4zbx3f4/46noYtRpYBDyI6o79EldoyP7arDcTVea64RTSaZKDc2rMmq9lYZaFELkXFRxSLEO5Dy5QPRF260UQVvycnRbTkuiggETgGte165rA=
+  edge: true
   overwrite: true
   file_glob: true
   file: build/sweetcher*.zip
