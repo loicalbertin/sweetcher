@@ -8,7 +8,7 @@ It allows a set of URL patterns to proxies defined in different profiles. And al
 
 ## Here is a little use-case (true story!)
 
-Lets say that you are working in a big IT company. This company does not allow its employees to access directly to the net, they have to go through a proxy system called masterproxy.yourcompany.it. This proxy has the one that all employees should use, when it is not out of order it has almost pretty good performances, but unfortunately it blocks some web sites like all file sharing files (google drive, dropbox, github gist (!?!?), ...) or some news sites like reedit (?!?!).
+Lets say that you are working in a big IT company. This company does not allow its employees to access directly to the net, they have to go through a proxy system called masterproxy.yourcompany.it. This proxy has the one that all employees should use, when it is not out of order it has almost pretty good performances, but unfortunately it blocks some web sites like all file sharing files (google drive, dropbox, github gist (!?!?), ...) or some news sites like reddit (?!?!).
 Fortunately you know another proxy (hiddenproxy.yourcompany.it) without blacklists but with poorest performances.
 
 Sometimes you also do homeworking, in this case you use a VPN to access your company system and do not use proxies at all for accessing the internet. Some of your company servers are not accessible directly from the VPN and you should use the hidden proxy to reach them.
@@ -35,7 +35,7 @@ profiles:
         proxy: direct
       - host_wildcard: "*.google.*"
         proxy: hidden
-      - host_wildcard: "*.reedit.*"
+      - host_wildcard: "*.reddit.*"
         proxy: hidden
   homeworking:
     default: direct
