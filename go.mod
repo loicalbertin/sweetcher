@@ -1,14 +1,18 @@
 module github.com/loicalbertin/sweetcher
 
+go 1.13
+
 require (
-	github.com/BurntSushi/toml v0.3.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.7
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/kr/pretty v0.1.0 // indirect
-	github.com/pkg/errors v0.0.0-20171018195549-f15c970de5b7
-	github.com/sirupsen/logrus v1.4.1
-	github.com/spf13/cobra v0.0.3
-	github.com/spf13/viper v1.2.0
-	golang.org/x/sys v0.0.0-20180918153733-ee1b12c67af4 // indirect
-	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
+	github.com/magiconair/properties v1.8.1 // indirect
+	github.com/pelletier/go-toml v1.4.0 // indirect
+	github.com/pkg/errors v0.8.1
+	github.com/sirupsen/logrus v1.4.2
+	github.com/spf13/afero v1.2.2 // indirect
+	github.com/spf13/cobra v0.0.5
+	github.com/spf13/jwalterweatherman v1.1.0 // indirect
+	github.com/spf13/viper v1.4.0
+	golang.org/x/sys v0.0.0-20190913121621-c3b328c6e5a7 // indirect
+	golang.org/x/text v0.3.2 // indirect
 )
