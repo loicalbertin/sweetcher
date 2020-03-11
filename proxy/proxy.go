@@ -91,7 +91,7 @@ func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		removeProxyHeaders(r)
 		resp, err := p.Tr.RoundTrip(r)
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			http.Error(w, err.Error(), 502)
 			return
 		}
 		origBody := resp.Body
