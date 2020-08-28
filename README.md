@@ -18,8 +18,8 @@ So lets put it tougher and write a Sweetcher config:
 ```yaml
 # First lets define our proxies
 proxies:
-  main: "masterproxy.yourcompany.it:8080"
-  hidden: "hiddenproxy.yourcompany.it"
+  main: "http://masterproxy.yourcompany.it:8080"
+  hidden: "http://hiddenproxy.yourcompany.it"
 
 # Then lets define some profiles
 profiles:
