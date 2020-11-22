@@ -10,6 +10,9 @@ categories:
       - 'fix'
       - 'bugfix'
       - 'bug'
+  - title: '🔧 Technical Tasks'
+    labels:
+      - 'Technical Task'
 change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
 template: |
   ## What's Changed
