@@ -1,14 +1,15 @@
 # First lets define our proxies
 proxies:
-  main: "masterproxy.yourcompany.it:8080"
-  hidden: "hiddenproxy.yourcompany.it"
+  main: "https://masterproxy.yourcompany.it:8080"
+  hidden: "http://hiddenproxy.yourcompany.it"
+  custom: "socks5://127.0.0.1:1080"
 
 # Then lets define some profiles
 profiles:
   atCompany:
     # A profile should have a default proxy if none of its rules match
     default: main
-    # Rules are ordered 
+    # Rules are ordered
     rules:
       - host_wildcard: "gist.github.com"
         proxy: hidden
