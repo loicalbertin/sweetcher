@@ -5,7 +5,7 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Download deps
       run: |
         wget --output-document=gotestsum.tgz https://github.com/gotestyourself/gotestsum/releases/download/v0.3.5/gotestsum_0.3.5_linux_amd64.tar.gz
@@ -19,9 +19,7 @@ jobs:
         XDG_CACHE_HOME: /tmp/.cache
         HOME: /tmp/buildhome
     - name: SonarCloud Scan
-      uses: sonarsource/sonarcloud-github-action@v1.1
-      # Do this only on push commit do not need to be re-analyzed on PR
-      if: github.event_name == 'push'
+      uses: sonarsource/sonarcloud-github-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
