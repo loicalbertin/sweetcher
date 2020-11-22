@@ -1,0 +1,27 @@
+on: [push, pull_request]
+
+jobs:
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Download deps
+      run: |
+        wget --output-document=gotestsum.tgz https://github.com/gotestyourself/gotestsum/releases/download/v0.3.5/gotestsum_0.3.5_linux_amd64.tar.gz
+        tar xzf gotestsum.tgz
+        rm -f gotestsum.tgz
+    - name: Test
+      uses: docker://golang:1
+      with:
+        args: /bin/bash -c "./gotestsum --jsonfile tests-reports.json  -- -count=1 -coverprofile coverage-sonar.out -coverpkg=./... $(go list ./...)"
+      env:
+        XDG_CACHE_HOME: /tmp/.cache
+        HOME: /tmp/buildhome
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@v1.1
+      # Do this only on push commit do not need to be re-analyzed on PR
+      if: github.event_name == 'push'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
