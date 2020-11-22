@@ -2,7 +2,9 @@ package proxy
 
 import (
 	"bufio"
+	"crypto/tls"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -11,6 +13,7 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
+	xproxy "golang.org/x/net/proxy"
 )
 
 // A Rule allows to match an URL pattern to a proxy URL
@@ -35,13 +38,14 @@ func (p *Profile) chooseProxy(req *http.Request) (*url.URL, error) {
 		logger := log.WithFields(log.Fields{
 			"hostname": hostname,
 			"pattern":  r.Pattern,
+			"proxy":    r.Proxy,
 		})
-		logger.Debug("check matching hostname against rule pattern")
+		logger.Trace("check matching hostname against rule pattern")
 		rePattern := strings.Replace(r.Pattern, ".", `\.`, -1)
 		rePattern = strings.Replace(rePattern, "*", ".*", -1)
 		rePattern = "^" + rePattern + "$"
 		if ok, err := regexp.MatchString(rePattern, hostname); err == nil && ok {
-			logger.Debug("matched!")
+			logger.Trace("matched!")
 			return r.Proxy, nil
 		}
 	}
@@ -76,16 +80,42 @@ func (p *Profile) dial(r *http.Request, network, addr string) (net.Conn, error) 
 	if proxy == nil {
 		return net.Dial(network, addr)
 	}
+
+	switch proxy.Scheme {
+	case "http", "https":
+		return p.dialHTTP(proxy, network, addr)
+	case "socks5":
+		return p.dialSocks5(proxy, network, addr)
+	default:
+		return nil, fmt.Errorf("unsupported scheme %q for proxy %s", proxy.Scheme, proxy.String())
+	}
+}
+
+func (p *Profile) dialSocks5(proxy *url.URL, network, addr string) (net.Conn, error) {
+	d, err := xproxy.SOCKS5(network, proxy.Host, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	return d.Dial(network, addr)
+}
+
+func (p *Profile) dialHTTP(proxy *url.URL, network, addr string) (net.Conn, error) {
 	// TODO handle https proxy connections see https://github.com/elazarl/goproxy/blob/a96fa3a318260eab29abaf32f7128c9eb07fb073/https.go#L363
+
+	c, err := net.Dial(network, proxy.Host)
+	if err != nil {
+		return nil, err
+	}
+
+	if proxy.Scheme == "https" {
+		c = tls.Client(c, &tls.Config{InsecureSkipVerify: true})
+	}
+
 	connectReq := &http.Request{
 		Method: "CONNECT",
 		URL:    &url.URL{Opaque: addr},
 		Host:   addr,
 		Header: make(http.Header),
-	}
-	c, err := net.Dial(network, proxy.Host)
-	if err != nil {
-		return nil, err
 	}
 	connectReq.Write(c)
 	// Read response.

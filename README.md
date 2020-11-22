@@ -18,15 +18,16 @@ So lets put it tougher and write a Sweetcher config:
 ```yaml
 # First lets define our proxies
 proxies:
-  main: "http://masterproxy.yourcompany.it:8080"
+  main: "https://masterproxy.yourcompany.it:8080"
   hidden: "http://hiddenproxy.yourcompany.it"
+  ssh_socks: "socks5://127.0.0.1:1080"
 
 # Then lets define some profiles
 profiles:
   atCompany:
     # A profile should have a default proxy if none of its rules match
     default: main
-    # Rules are ordered 
+    # Rules are ordered
     rules:
       - host_wildcard: "gist.github.com"
         proxy: hidden
@@ -64,7 +65,8 @@ original goproxy library. I also plan to add the ability to match on URL pattern
 
 - [x] Use a logger with log levels
 - [ ] Automatically switch profiles based on networks specificities
-- [ ] Support https proxies in case of HTTPS CONNECT connections (maybe done by go1.10 <https://medium.com/@mlowicki/https-proxies-support-in-go-1-10-b956fb501d6b> to be checked)
+- [x] Support https proxies in case of HTTPS CONNECT connections (maybe done by go1.10 <https://medium.com/@mlowicki/https-proxies-support-in-go-1-10-b956fb501d6b> to be checked)
+- [x] SOCKS 5 support
 - [x] Dynamic configuration reload
 - [ ] URL patterns
 - [ ] metering (errors, rate, ...)
