@@ -2,11 +2,11 @@
 
 name: Release
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   release:
     types: [published]
-  
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: build
-        uses: docker://golang:1 
+        uses: docker://golang:1
         with:
           args: /bin/bash -c "go get github.com/mitchellh/gox && ./dist.sh"
         env:
@@ -33,16 +33,16 @@ jobs:
           files: build/sweetcher*.*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: compute next version
         uses: actions/version-managment@v1
         id: version
         with:
           token: ${{secrets.GITHUB_TOKEN}}
-          default-fragment: "feature"
-       
+          default-fragment: "bug"
+
       - name: update sonar config file
-        run: sed -i -e "s/^sonar.projectVersion=.*$/sonar.projectVersion=${{ steps.version.outputs.next }}/" 
+        run: sed -i -e "s/^sonar.projectVersion=.*$/sonar.projectVersion=${{ steps.version.outputs.next }}/"
 
       - name: Create Pull Request
         id: cpr
