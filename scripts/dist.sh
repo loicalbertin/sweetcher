@@ -14,7 +14,7 @@ echo "==> Building..."
 "$(which gox)" \
     -os="${XC_OS}" \
     -arch="${XC_ARCH}" \
-    -osarch="!darwin/arm !darwin/arm64" \
+    -osarch="!darwin/arm !darwin/arm64 !darwin/386" \
     -output "build/{{.OS}}_{{.Arch}}/{{.Dir}}" \
     -tags="${GOTAGS}" \
     .
@@ -24,8 +24,11 @@ for PLATFORM in $(find ./build -mindepth 1 -maxdepth 1 -type d); do
     echo "--> ${OSARCH}"
 
     pushd $PLATFORM >/dev/null 2>&1
-    zip ../sweetcher_${OSARCH}.zip ./*
-    tar czvf ../sweetcher_${OSARCH}.tgz ./*
+    if [[ ${OSARCH} = windows* ]] ; then
+        zip ../sweetcher_${OSARCH}.zip ./*
+    else
+        tar czvf ../sweetcher_${OSARCH}.tgz ./*
+    fi
     rm ./*
     popd >/dev/null 2>&1
 done
