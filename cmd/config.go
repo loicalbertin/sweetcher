@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 // Config is the root of a configuration file
 type Config struct {

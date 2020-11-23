@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/loicalbertin/sweetcher/commands"
+	"github.com/loicalbertin/sweetcher/cmd"
 )
 
 func main() {
-	if err := commands.RootCmd.Execute(); err != nil {
+	if err := cmd.RootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}

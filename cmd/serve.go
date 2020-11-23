@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 import (
 	"net/url"
@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/loicalbertin/sweetcher/proxy"
+	"github.com/loicalbertin/sweetcher/pkg/proxy"
 )
 
 var server *proxy.Server
