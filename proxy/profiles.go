@@ -100,8 +100,6 @@ func (p *Profile) dialSocks5(proxy *url.URL, network, addr string) (net.Conn, er
 }
 
 func (p *Profile) dialHTTP(proxy *url.URL, network, addr string) (net.Conn, error) {
-	// TODO handle https proxy connections see https://github.com/elazarl/goproxy/blob/a96fa3a318260eab29abaf32f7128c9eb07fb073/https.go#L363
-
 	c, err := net.Dial(network, proxy.Host)
 	if err != nil {
 		return nil, err
