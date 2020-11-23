@@ -22,7 +22,7 @@ jobs:
       - name: build
         uses: docker://golang:1
         with:
-          args: /bin/bash -c "go get github.com/mitchellh/gox && ./scripts/dist.sh"
+          args: /bin/bash -c "apt-get update && apt-get install -y zip && go get github.com/mitchellh/gox && ./scripts/dist.sh"
         env:
           XDG_CACHE_HOME: /tmp/.cache
           HOME: /tmp/buildhome
