@@ -9,7 +9,7 @@ if [[ "${CI}" == "true" ]] && [[ -z "${TRAVIS_TAG}" ]] ; then
 fi
 
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd ${scriptDir}
+cd ${scriptDir}/..
 export CGO_ENABLED=0
 
 XC_ARCH=${XC_ARCH:-"386 amd64 arm arm64"}

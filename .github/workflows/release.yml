@@ -22,7 +22,7 @@ jobs:
       - name: build
         uses: docker://golang:1
         with:
-          args: /bin/bash -c "go get github.com/mitchellh/gox && ./dist.sh"
+          args: /bin/bash -c "go get github.com/mitchellh/gox && ./scripts/dist.sh"
         env:
           XDG_CACHE_HOME: /tmp/.cache
           HOME: /tmp/buildhome
@@ -42,7 +42,7 @@ jobs:
           default-fragment: "bug"
 
       - name: update sonar config file
-        run: sed -i -e "s/^sonar.projectVersion=.*$/sonar.projectVersion=${{ steps.version.outputs.next }}/"
+        run: sed -i -e "s/^sonar.projectVersion=.*$/sonar.projectVersion=${{ steps.version.outputs.next }}/" sonar-project.properties
 
       - name: Create Pull Request
         id: cpr
