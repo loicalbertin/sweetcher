@@ -3,11 +3,6 @@ set -e
 
 export GO111MODULE=on
 
-if [[ "${CI}" == "true" ]] && [[ -z "${TRAVIS_TAG}" ]] ; then
-    echo "Skipping dist build as we are not building a tag"
-    exit 0
-fi
-
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd ${scriptDir}/..
 export CGO_ENABLED=0

@@ -1,4 +1,5 @@
-.vscode
+/.vscode
 sweetcher
 sweetcher.yaml
-build
+sweetcher.exe
+/build

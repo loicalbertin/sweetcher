@@ -53,11 +53,11 @@ jobs:
           author: GitHub Actions <actions@github.com>
           branch: post-release-sonar-config-update-${{ steps.version.outputs.next }}
           delete-branch: true
+          base: master
           title: '[Release] Update Sonar config version to ${{ steps.version.outputs.next }}'
           body: |
             Update Sonar config version to ${{ steps.version.outputs.next }}
           labels: |
-            report
-            automated pr
+            release/automated_pr
           assignees: loicalbertin
           reviewers: loicalbertin
