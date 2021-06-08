@@ -63,6 +63,7 @@ original goproxy library. I also plan to add the ability to match on URL pattern
 
 ## Roadmap
 
+- [ ] Improve documentation starting by a setup guide
 - [x] Use a logger with log levels
 - [ ] Automatically switch profiles based on networks specificities
 - [x] Support https proxies in case of HTTPS CONNECT connections (maybe done by go1.10 <https://medium.com/@mlowicki/https-proxies-support-in-go-1-10-b956fb501d6b> to be checked)
