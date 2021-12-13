@@ -8,6 +8,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.1
-	github.com/spf13/viper v1.9.0
-	golang.org/x/net v0.0.0-20210503060351-7fd8e65b6420
+	github.com/spf13/viper v1.10.0
+	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
 )
