@@ -33,6 +33,7 @@ func init() {
 
 			viper.WatchConfig()
 			viper.OnConfigChange(updateConfigOnChangeEvent)
+			log.WithField("config", conf).Debugln("Running sweetcher server")
 
 			return server.ListenAndServe()
 
