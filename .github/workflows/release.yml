@@ -17,15 +17,18 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+
+      - name: Download deps
+        run: |
+          go install github.com/mitchellh/gox
 
       - name: build
-        uses: docker://golang:1
-        with:
-          args: /bin/bash -c "apt-get update && apt-get install -y zip && go get github.com/mitchellh/gox && ./scripts/dist.sh"
-        env:
-          XDG_CACHE_HOME: /tmp/.cache
-          HOME: /tmp/buildhome
+        run: |
+          ./scripts/dist.sh
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v1
