@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Unshallow to allow sonar to perform its analyze correctly
     - uses: actions/setup-go@v5
       with:
         go-version: 'stable'
