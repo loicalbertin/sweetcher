@@ -13,13 +13,14 @@ jobs:
     - name: Download deps
       run: |
         pwd; ls -1a
+        git status -v
         wget --output-document=gotestsum.tgz https://github.com/gotestyourself/gotestsum/releases/download/v1.11.0/gotestsum_1.11.0_linux_amd64.tar.gz
         tar xzf gotestsum.tgz gotestsum
         rm -f gotestsum.tgz
     - name: Test
       uses: docker://golang:1
       with:
-        args: /bin/bash -c "pwd; ls -1a ; ./gotestsum --jsonfile tests-reports.json  -- -count=1 -coverprofile coverage-sonar.out -coverpkg=./... $(go list ./...)"
+        args: /bin/bash -c "pwd; ls -1a ; git status -v; ./gotestsum --jsonfile tests-reports.json  -- -count=1 -coverprofile coverage-sonar.out -coverpkg=./... $(go list ./...)"
       env:
         XDG_CACHE_HOME: /tmp/.cache
         HOME: /tmp/buildhome
