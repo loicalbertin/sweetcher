@@ -13,6 +13,10 @@ categories:
   - title: '🔧 Technical Tasks'
     labels:
       - 'Technical Task'
+      - 'release/automated_pr'
+  - title: '👒 Dependencies '
+    labels:
+      - 'dependencies'
 change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
 template: |
   ## What's Changed
