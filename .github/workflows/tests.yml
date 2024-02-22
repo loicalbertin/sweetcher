@@ -21,7 +21,7 @@ jobs:
     - name: Test
       shell: bash
       run: |
-        ./gotestsum --jsonfile tests-reports.json  -- -count=1 -coverprofile coverage-sonar.out -coverpkg=./... $(go list ./...)"
+        ./gotestsum --jsonfile tests-reports.json  -- -count=1 -coverprofile coverage-sonar.out -coverpkg=./... $(go list ./...)
 
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
