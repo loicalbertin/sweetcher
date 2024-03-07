@@ -13,9 +13,11 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 	golang.org/x/net v0.22.0
+	gotest.tools/v3 v3.5.1
 )
 
 require (
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
