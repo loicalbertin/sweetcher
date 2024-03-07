@@ -1,14 +1,16 @@
 package cmd
 
 import (
+	"context"
+	"log/slog"
 	"net/url"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/loicalbertin/sweetcher/pkg/log"
 	"github.com/loicalbertin/sweetcher/pkg/proxy"
 )
 
@@ -33,7 +35,8 @@ func init() {
 
 			viper.WatchConfig()
 			viper.OnConfigChange(updateConfigOnChangeEvent)
-			log.WithField("config", conf).Debugln("Running sweetcher server")
+			slog.Log(context.Background(), log.LevelTrace, "Running sweetcher server", "config", conf)
+			// slog.Debug("Running sweetcher server", "config", conf)
 
 			return server.ListenAndServe()
 
@@ -43,22 +46,20 @@ func init() {
 }
 
 func updateConfigOnChangeEvent(e fsnotify.Event) {
-	logger := log.WithFields(log.Fields{
-		"file": e.Name,
-		// "operation": e.Op,
-	})
+
+	logger := slog.With(slog.String("file", e.Name))
 	logger.Info("reloading config file")
 	c := &Config{}
 	err := viper.Unmarshal(c)
 	if err != nil {
-		logger.WithField("error", err).Error("Failed to read config file")
+		logger.Error("Failed to read config file", "error", err)
 		return
 	}
-	logger = logger.WithField("profile", c.Server.Profile)
-	setupLogs(c)
+	logger = logger.With(slog.String("profile", c.Server.Profile))
+	log.SetupLogs(c.Server.Logs)
 	profile, err := generateProfile(c)
 	if err != nil {
-		logger.WithField("error", err).Error("Failed to create profile from config file")
+		logger.Error("Failed to create profile from config file", "error", err)
 		return
 	}
 	server.SetupProfile(profile)
@@ -76,7 +77,7 @@ func initConfig() (*Config, error) {
 	}
 	conf := &Config{}
 	viper.Unmarshal(conf)
-	setupLogs(conf)
+	log.SetupLogs(conf.Server.Logs)
 	return conf, nil
 }
 
@@ -111,19 +112,4 @@ func generateProfile(cfg *Config) (*proxy.Profile, error) {
 		profile.Rules = append(profile.Rules, proxy.Rule{Pattern: r.HostWildcard, Proxy: rp})
 	}
 	return profile, nil
-}
-
-func setupLogs(c *Config) {
-	level := c.Server.Logs.Level
-	if level == "" {
-		level = "info"
-	}
-	l, err := log.ParseLevel(level)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Fatal("failed to parse config file log level")
-	}
-	log.SetLevel(l)
-	log.SetFormatter(&log.TextFormatter{})
 }
