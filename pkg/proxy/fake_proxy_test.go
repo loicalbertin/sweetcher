@@ -96,5 +96,5 @@ func TestProxy(t *testing.T) {
 		t.Error("Use proxy in http mode with missing forward proxy: expecting an error")
 	}
 
-	<-time.After(60 * time.Second)
+	<-time.After(10 * time.Second)
 }
