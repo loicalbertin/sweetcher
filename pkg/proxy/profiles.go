@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log/slog"
 	"net"
 	"net/http"
@@ -132,7 +132,7 @@ func (p *Profile) dialHTTP(proxy *url.URL, network, addr string) (net.Conn, erro
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		resp, err := ioutil.ReadAll(resp.Body)
+		resp, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return nil, err
 		}
