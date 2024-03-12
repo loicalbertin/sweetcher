@@ -122,7 +122,8 @@ func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func httpError(w io.WriteCloser, err error) {
-	if _, err := io.WriteString(w, "HTTP/1.1 502 Bad Gateway\r\n\r\n"); err != nil {
+	errStr := fmt.Sprintf("HTTP/1.1 502 Bad Gateway\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(err.Error()), err.Error())
+	if _, err := io.WriteString(w, errStr); err != nil {
 		slog.Warn("Error responding to client", "error", err)
 	}
 	if err := w.Close(); err != nil {
@@ -150,6 +151,16 @@ func copyOrWarn(ctx context.Context, logger *slog.Logger, way string, dst io.Wri
 		}
 	}()
 	wg.Done()
+}
+
+func proxyNotHalfClosableConnection(ctx context.Context, logger *slog.Logger, proxyClient, targetSiteCon net.Conn) {
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go copyOrWarn(ctx, logger, "client_to_proxy", targetSiteCon, proxyClient, &wg)
+	go copyOrWarn(ctx, logger, "proxy_to_client", proxyClient, targetSiteCon, &wg)
+	wg.Wait()
+	proxyClient.Close()
+	targetSiteCon.Close()
 }
 
 func copyAndClose(ctx context.Context, logger *slog.Logger, way string, dst, src *net.TCPConn) {
@@ -195,16 +206,7 @@ func (p *proxy) handleHTTPS(w http.ResponseWriter, r *http.Request, logger *slog
 		go copyAndClose(ctx, logger, "client_to_proxy", targetTCP, proxyClientTCP)
 		go copyAndClose(ctx, logger, "proxy_to_client", proxyClientTCP, targetTCP)
 	} else {
-		go func() {
-			var wg sync.WaitGroup
-			wg.Add(2)
-			go copyOrWarn(ctx, logger, "client_to_proxy", targetSiteCon, proxyClient, &wg)
-			go copyOrWarn(ctx, logger, "proxy_to_client", proxyClient, targetSiteCon, &wg)
-			wg.Wait()
-			proxyClient.Close()
-			targetSiteCon.Close()
-
-		}()
+		go proxyNotHalfClosableConnection(ctx, logger, proxyClient, targetSiteCon)
 	}
 
 }
