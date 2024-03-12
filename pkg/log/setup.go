@@ -8,7 +8,7 @@ import (
 	"github.com/mattn/go-isatty"
 )
 
-func SetupLogs(cfg LogsConfig) {
+func SetupLogs(cfg LogsConfig) error {
 	level := cfg.Level
 	if level == "" {
 		level = "info"
@@ -16,11 +16,12 @@ func SetupLogs(cfg LogsConfig) {
 	l, err := LevelFromString(level)
 	if err != nil {
 		slog.Error("failed to parse config file log level", "error", err)
-		os.Exit(1)
+		return err
 	}
 
 	// set global logger with custom options
 	slog.SetDefault(slog.New(getLogHandler(cfg, l)))
+	return nil
 }
 
 func getLogHandler(cfg LogsConfig, l *slog.Level) slog.Handler {

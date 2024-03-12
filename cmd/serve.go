@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/url"
+	"os"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/pkg/errors"
@@ -56,7 +57,11 @@ func updateConfigOnChangeEvent(e fsnotify.Event) {
 		return
 	}
 	logger = logger.With(slog.String("profile", c.Server.Profile))
-	log.SetupLogs(c.Server.Logs)
+	err = log.SetupLogs(c.Server.Logs)
+	if err != nil {
+		os.Exit(1)
+	}
+
 	profile, err := generateProfile(c)
 	if err != nil {
 		logger.Error("Failed to create profile from config file", "error", err)
@@ -77,7 +82,10 @@ func initConfig() (*Config, error) {
 	}
 	conf := &Config{}
 	viper.Unmarshal(conf)
-	log.SetupLogs(conf.Server.Logs)
+	err = log.SetupLogs(conf.Server.Logs)
+	if err != nil {
+		os.Exit(1)
+	}
 	return conf, nil
 }
 
