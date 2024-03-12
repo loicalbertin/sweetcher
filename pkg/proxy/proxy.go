@@ -153,14 +153,14 @@ func copyOrWarn(ctx context.Context, logger *slog.Logger, way string, dst io.Wri
 }
 
 func copyAndClose(ctx context.Context, logger *slog.Logger, way string, dst, src *net.TCPConn) {
+	// func() {
 	var copied int64
 	var err error
-	func() {
-		defer logCopyTime(ctx, logger, time.Now(), &copied, way)
-		if copied, err = io.Copy(dst, src); err != nil {
-			logger.Warn("Error copying to client", "error", err)
-		}
-	}()
+	defer logCopyTime(ctx, logger, time.Now(), &copied, way)
+	if copied, err = io.Copy(dst, src); err != nil {
+		logger.Warn("Error copying to client", "error", err)
+	}
+	// }()
 	dst.CloseWrite()
 	src.CloseRead()
 }

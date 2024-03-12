@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"testing"
+	"time"
 )
 
 func TestProxy(t *testing.T) {
@@ -16,6 +17,7 @@ func TestProxy(t *testing.T) {
 		Default: makeURL(t, "http://127.0.0.1:9989"),
 		Rules: []Rule{
 			{Pattern: "something.*", Proxy: makeURL(t, "http://127.0.0.1:9998")},
+			{Pattern: "wrongproxy.*", Proxy: makeURL(t, "wrongproto://127.0.0.1:9998")},
 		},
 	})
 
@@ -45,7 +47,8 @@ func TestProxy(t *testing.T) {
 		t.Fatalf("failed to parse proxy URL: %v", err)
 	}
 	httpClient := &http.Client{Transport: &http.Transport{
-		Proxy: http.ProxyURL(proxyUrl),
+		Proxy:           http.ProxyURL(proxyUrl),
+		IdleConnTimeout: 10 * time.Second,
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
 		},
@@ -85,4 +88,13 @@ func TestProxy(t *testing.T) {
 		t.Error("Use proxy in http mode with missing forward proxy: expecting an error")
 	}
 
+	resp, err = httpClient.Get("http://wrongproxy.com")
+	if err != nil {
+		t.Errorf("Use proxy in http mode with missing forward proxy: %v", err)
+	}
+	if resp.StatusCode == http.StatusOK {
+		t.Error("Use proxy in http mode with missing forward proxy: expecting an error")
+	}
+
+	<-time.After(60 * time.Second)
 }
