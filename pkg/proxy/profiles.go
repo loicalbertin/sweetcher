@@ -5,14 +5,15 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
+	"log/slog"
 	"net"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/loicalbertin/sweetcher/pkg/log"
 	xproxy "golang.org/x/net/proxy"
 )
 
@@ -35,17 +36,21 @@ type Profile struct {
 func (p *Profile) chooseProxy(req *http.Request) (*url.URL, error) {
 	for _, r := range p.Rules {
 		hostname := stripPort(req.URL)
-		logger := log.WithFields(log.Fields{
-			"hostname": hostname,
-			"pattern":  r.Pattern,
-			"proxy":    r.Proxy,
-		})
-		logger.Trace("check matching hostname against rule pattern")
+		logger := slog.With(
+			slog.String("hostname", hostname),
+			slog.String("pattern", r.Pattern),
+			slog.String("proxy", "direct"),
+		)
+		if r.Proxy != nil {
+			logger = logger.With(slog.String("proxy", r.Proxy.String()))
+		}
+
+		logger.Log(req.Context(), log.LevelTrace, "check matching hostname against rule pattern")
 		rePattern := strings.Replace(r.Pattern, ".", `\.`, -1)
 		rePattern = strings.Replace(rePattern, "*", ".*", -1)
 		rePattern = "^" + rePattern + "$"
 		if ok, err := regexp.MatchString(rePattern, hostname); err == nil && ok {
-			logger.Trace("matched!")
+			logger.Debug("matched!")
 			return r.Proxy, nil
 		}
 	}
@@ -127,7 +132,7 @@ func (p *Profile) dialHTTP(proxy *url.URL, network, addr string) (net.Conn, erro
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		resp, err := ioutil.ReadAll(resp.Body)
+		resp, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return nil, err
 		}

@@ -1,15 +1,19 @@
 package proxy
 
 import (
+	"context"
 	"crypto/tls"
+	"fmt"
 	"io"
+	"log/slog"
 	"net"
 	"net/http"
 	"regexp"
 	"sync"
 	"sync/atomic"
+	"time"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/loicalbertin/sweetcher/pkg/log"
 )
 
 // Disclaimer: This part is mainly copied from the excellent https://github.com/elazarl/goproxy/
@@ -74,13 +78,14 @@ func copyHeaders(dst, src http.Header) {
 
 func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	reqID := atomic.AddUint64(&p.requestsCounter, 1)
-	logger := log.WithField("requestID", reqID)
+	logger := slog.With(
+		slog.Uint64("requestID", reqID),
+		slog.String("requested_host", r.URL.Host),
+	)
 
-	ctx := withLogger(r.Context(), logger)
-	r = r.WithContext(ctx)
 	//r.Header["X-Forwarded-For"] = w.RemoteAddr()
 	if r.Method == "CONNECT" {
-		p.handleHTTPS(w, r)
+		p.handleHTTPS(w, r, logger)
 	} else {
 		var err error
 		if !r.URL.IsAbs() {
@@ -109,40 +114,69 @@ func (p *proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(resp.StatusCode)
 		nr, err := io.Copy(w, resp.Body)
 		if err := resp.Body.Close(); err != nil {
-			logger.WithError(err).Warn("Can't close response body")
+			logger.Warn("Can't close response body", "error", err)
 		}
-		logger.WithField("bytes", nr).WithError(err).Trace("bytes copied to client")
+		logger.Log(r.Context(), log.LevelTrace, "bytes copied to client", "error", err, "bytes", nr)
 	}
 
 }
 
-func httpError(logger *log.Entry, w io.WriteCloser, err error) {
-	if _, err := io.WriteString(w, "HTTP/1.1 502 Bad Gateway\r\n\r\n"); err != nil {
-		logger.WithError(err).Warn("Error responding to client")
+func httpError(w io.WriteCloser, err error) {
+	errStr := fmt.Sprintf("HTTP/1.1 502 Bad Gateway\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s", len(err.Error()), err.Error())
+	if _, err := io.WriteString(w, errStr); err != nil {
+		slog.Warn("Error responding to client", "error", err)
 	}
 	if err := w.Close(); err != nil {
-		logger.WithError(err).Warn("Error closing client connection")
+		slog.Warn("Error closing client connection", "error", err)
 	}
 }
 
-func copyOrWarn(logger *log.Entry, dst io.Writer, src io.Reader, wg *sync.WaitGroup) {
-	if _, err := io.Copy(dst, src); err != nil {
-		logger.WithError(err).Warn("Error copying to client")
-	}
+func logCopyTime(ctx context.Context, logger *slog.Logger, start time.Time, copied *int64, way string) {
+	elapsed := time.Since(start)
+	logger.Log(ctx, log.LevelTrace, "Proxied connection",
+		slog.Duration("elapsed", elapsed),
+		slog.Int64("bytes", *copied),
+		slog.String("way", way),
+		slog.String("throughput", fmt.Sprintf("%f B/s", float64(*copied)/elapsed.Seconds())),
+	)
+}
+
+func copyOrWarn(ctx context.Context, logger *slog.Logger, way string, dst io.Writer, src io.Reader, wg *sync.WaitGroup) {
+	var copied int64
+	var err error
+	func() {
+		defer logCopyTime(ctx, logger, time.Now(), &copied, way)
+		if copied, err = io.Copy(dst, src); err != nil {
+			logger.Warn("Error copying to client", "error", err)
+		}
+	}()
 	wg.Done()
 }
 
-func copyAndClose(logger *log.Entry, dst, src *net.TCPConn) {
-	if _, err := io.Copy(dst, src); err != nil {
-		logger.WithError(err).Warn("Error copying to client")
-	}
+func proxyNotHalfClosableConnection(ctx context.Context, logger *slog.Logger, proxyClient, targetSiteCon net.Conn) {
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go copyOrWarn(ctx, logger, "client_to_proxy", targetSiteCon, proxyClient, &wg)
+	go copyOrWarn(ctx, logger, "proxy_to_client", proxyClient, targetSiteCon, &wg)
+	wg.Wait()
+	proxyClient.Close()
+	targetSiteCon.Close()
+}
 
+func copyAndClose(ctx context.Context, logger *slog.Logger, way string, dst, src *net.TCPConn) {
+	// func() {
+	var copied int64
+	var err error
+	defer logCopyTime(ctx, logger, time.Now(), &copied, way)
+	if copied, err = io.Copy(dst, src); err != nil {
+		logger.Warn("Error copying to client", "error", err)
+	}
+	// }()
 	dst.CloseWrite()
 	src.CloseRead()
 }
 
-func (p *proxy) handleHTTPS(w http.ResponseWriter, r *http.Request) {
-	logger := ensureLoggerFromContext(r.Context())
+func (p *proxy) handleHTTPS(w http.ResponseWriter, r *http.Request, logger *slog.Logger) {
 	hij, ok := w.(http.Hijacker)
 	if !ok {
 		panic("httpserver does not support hijacking")
@@ -159,28 +193,20 @@ func (p *proxy) handleHTTPS(w http.ResponseWriter, r *http.Request) {
 	}
 	targetSiteCon, err := p.profile.dial(r, "tcp", host)
 	if err != nil {
-		httpError(logger, proxyClient, err)
+		httpError(proxyClient, err)
 		return
 	}
-	logger.WithField("host", host).Trace("Accepting CONNECT to host")
+	logger.Log(r.Context(), log.LevelTrace, "Accepting CONNECT to host")
 	proxyClient.Write([]byte("HTTP/1.0 200 OK\r\n\r\n"))
 
 	targetTCP, targetOK := targetSiteCon.(*net.TCPConn)
 	proxyClientTCP, clientOK := proxyClient.(*net.TCPConn)
+	ctx := r.Context()
 	if targetOK && clientOK {
-		go copyAndClose(logger, targetTCP, proxyClientTCP)
-		go copyAndClose(logger, proxyClientTCP, targetTCP)
+		go copyAndClose(ctx, logger, "client_to_proxy", targetTCP, proxyClientTCP)
+		go copyAndClose(ctx, logger, "proxy_to_client", proxyClientTCP, targetTCP)
 	} else {
-		go func() {
-			var wg sync.WaitGroup
-			wg.Add(2)
-			go copyOrWarn(logger, targetSiteCon, proxyClient, &wg)
-			go copyOrWarn(logger, proxyClient, targetSiteCon, &wg)
-			wg.Wait()
-			proxyClient.Close()
-			targetSiteCon.Close()
-
-		}()
+		go proxyNotHalfClosableConnection(ctx, logger, proxyClient, targetSiteCon)
 	}
 
 }
