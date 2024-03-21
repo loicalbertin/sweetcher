@@ -4,8 +4,7 @@ Requires=network-online.target
 After=network.target
 
 [Service]
-User=nobody
-Group=nogroup
+DynamicUser=yes
 Restart=on-failure
 ExecStart=/usr/local/bin/sweetcher serve
 ExecReload=/bin/kill -s HUP $MAINPID
