@@ -1,5 +1,5 @@
 /.vscode
-sweetcher
-sweetcher.yaml
-sweetcher.exe
-/build
+/sweetcher
+/sweetcher.yaml
+/sweetcher.exe
+/build/dist/

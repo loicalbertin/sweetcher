@@ -15,20 +15,20 @@ echo "==> Building..."
     -os="${XC_OS}" \
     -arch="${XC_ARCH}" \
     -osarch="!darwin/arm !darwin/arm64 !darwin/386" \
-    -output "build/{{.OS}}_{{.Arch}}/{{.Dir}}" \
+    -output "build/dist/{{.OS}}_{{.Arch}}/{{.Dir}}" \
     -tags="${GOTAGS}" \
     .
 
-for PLATFORM in $(find ./build -mindepth 1 -maxdepth 1 -type d); do
+for PLATFORM in $(find ./build/dist -mindepth 1 -maxdepth 1 -type d); do
     OSARCH=$(basename ${PLATFORM})
     echo "--> ${OSARCH}"
 
-    pushd $PLATFORM >/dev/null 2>&1
+    pushd "$PLATFORM" >/dev/null 2>&1
     if [[ ${OSARCH} = windows* ]] ; then
         zip ../sweetcher_${OSARCH}.zip ./*
     else
         tar czvf ../sweetcher_${OSARCH}.tgz ./*
     fi
-    rm ./*
     popd >/dev/null 2>&1
+    rm -r "$PLATFORM"
 done

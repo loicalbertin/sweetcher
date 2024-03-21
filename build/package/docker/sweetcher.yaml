@@ -1,0 +1,11 @@
+# This file allow to start sweetcher within a container even if the
+# actual configuration file is not properly mounted.
+# It contains a default profile that do not use any proxy.
+profiles:
+  default_profile:
+    default: direct
+    rules: []
+
+server:
+  profile: default_profile
+  address: ":8080"
