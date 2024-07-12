@@ -6,7 +6,7 @@ toolchain go1.21.1
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0
-	github.com/lmittmann/tint v1.0.4
+	github.com/lmittmann/tint v1.0.5
 	github.com/mattn/go-isatty v0.0.20
 	github.com/mitchellh/gox v1.0.1
 	github.com/pkg/errors v0.9.1
